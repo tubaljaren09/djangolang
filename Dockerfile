@@ -5,7 +5,7 @@ FROM python:3.10-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install system dependencies needed for building packages, Selenium, Chromium, and headless browsing
+# Install system dependencies for Selenium, Chromium, and headless browsing
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
@@ -21,9 +21,10 @@ RUN apt-get update && apt-get install -y \
     libx11-xcb1 \
     xvfb \
     chromium \
-    chromium-chromedriver \
+    chromium-driver \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+
 
 # Set the display environment variable for the headless browser
 ENV DISPLAY=:99
