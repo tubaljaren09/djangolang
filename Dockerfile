@@ -1,14 +1,13 @@
 # Use the official Python base image
 FROM python:3.10-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# Set environment variables to prevent Python from writing .pyc files and to ensure stdout/stderr are unbuffered
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-# Install system dependencies
+# Install system dependencies needed for building packages, Selenium, Chromium, and headless browsing
 RUN apt-get update && apt-get install -y \
     build-essential \
-    libpq-dev \
     curl \
     unzip \
     wget \
@@ -16,7 +15,6 @@ RUN apt-get update && apt-get install -y \
     fonts-liberation \
     libnss3 \
     libxss1 \
-    # Removed: libappindicator1, libindicator7 (if not needed)
     libasound2 \
     libatk-bridge2.0-0 \
     libgtk-3-0 \
@@ -27,21 +25,22 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Set display port for headless browser
+# Set the display environment variable for the headless browser
 ENV DISPLAY=:99
 
-# Create and set working directory
+# Create and set the working directory in the container
 WORKDIR /app
 
-# Install Python dependencies
+# Copy the requirements.txt file and install Python dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy project files
+# Copy the rest of the project files into the container
 COPY . .
 
-# Expose port (typically 8000 for Django)
+# Expose port 8000 (or whichever port your Django app uses)
 EXPOSE 8000
 
-# Run the application (adjust the command if needed)
-CMD ["gunicorn", "your_project_name.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Use Gunicorn to run the Django app
+# Replace 'djangoapp.wsgi:application' with the appropriate WSGI path for your project
+CMD ["gunicorn", "djangolang.wsgi:application", "--bind", "0.0.0.0:8000"]
