@@ -5,7 +5,7 @@ FROM python:3.10-slim
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# Install system dependencies for Selenium, Chromium, and Xvfb
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
@@ -25,23 +25,24 @@ RUN apt-get update && apt-get install -y \
     xvfb \
     chromium \
     chromium-driver \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Set display port for headless browser
 ENV DISPLAY=:99
 
-# Create and set the working directory
+# Create and set working directory
 WORKDIR /app
 
 # Install Python dependencies
-COPY requirements.txt .  
+COPY requirements.txt . 
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy the project files into the container
+# Copy project files
 COPY . .
 
 # Expose port (typically 8000 for Django)
 EXPOSE 8000
 
-# Run the application using Gunicorn (for production)
-CMD ["gunicorn", "djangolang.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Run the application
+CMD ["gunicorn", "your_project_name.wsgi:application", "--bind", "0.0.0.0:8000"]
