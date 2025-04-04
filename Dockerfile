@@ -34,7 +34,8 @@ WORKDIR /app
 
 # Copy the requirements.txt file and install Python dependencies
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install --root-user-action=ignore -r requirements.txt
+
 
 # Copy the rest of the project files into the container
 COPY . .
