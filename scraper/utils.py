@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -18,12 +19,13 @@ def scrape_page_with_selenium(url):
     temp_dir = tempfile.mkdtemp()
     options.add_argument(f"--user-data-dir={temp_dir}")
     
-    driver = webdriver.Chrome(options=options)
+    # Explicitly create a Service with the path to your chromedriver
+    service = Service(executable_path='/usr/local/bin/chromedriver')
+    driver = webdriver.Chrome(service=service, options=options)
     wait = WebDriverWait(driver, 10)
     
     try:
         driver.get(url)
-        
         # Wait until the product grid is loaded
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.main-products-grid__results ul li')))
         
@@ -31,10 +33,9 @@ def scrape_page_with_selenium(url):
         try:
             show_more_button = wait.until(EC.element_to_be_clickable((By.LINK_TEXT, 'Show more')))
             show_more_button.click()
-            # Wait until new content is loaded (you may adjust the selector as needed)
+            # Wait until new content is loaded
             wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.main-products-grid__results ul li')))
         except Exception as click_exception:
-            # If "Show more" isn't found or clickable, log the warning and continue
             print(f"Warning: 'Show more' button issue: {click_exception}")
         
         html = driver.page_source

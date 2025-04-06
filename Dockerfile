@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y \
     chromium \
     chromium-driver \
     ca-certificates \
+    && ln -s /usr/bin/chromedriver /usr/local/bin/chromedriver \
     && rm -rf /var/lib/apt/lists/*
 
 
