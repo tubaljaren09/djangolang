@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
-import tempfile
+
 
 def scrape_page_with_selenium(url):
     # Configure Selenium options
@@ -14,10 +14,10 @@ def scrape_page_with_selenium(url):
     options.add_argument('--disable-gpu')
     options.add_argument("--window-size=1920,1080")
     options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36')
-    
-    temp_dir = tempfile.mkdtemp()
-    print("Using temporary user data directory:", temp_dir)
-    options.add_argument(f"--user-data-dir={temp_dir}")
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--incognito')
+    # Removed the --user-data-dir argument to avoid conflicts
 
     # Explicitly create a Service with the path to your chromedriver
     service = Service(executable_path='/usr/local/bin/chromedriver')
