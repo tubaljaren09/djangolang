@@ -1,7 +1,7 @@
 # scraper/views.py
 
 from django.shortcuts import render
-from .utils import scrape_page_with_selenium
+from .utils import scrape_page_with_bs4
 import re
 
 def parse_price(price_str):
@@ -13,7 +13,7 @@ def home(request):
     if request.method == 'POST':
         url = request.POST.get('url')
         if url:
-            result = scrape_page_with_selenium(url)
+            result = scrape_page_with_bs4(url)
             if 'error' in result:
                 context['error'] = result['error']
             else:
