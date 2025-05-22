@@ -1,49 +1,64 @@
-# Use the official Python base image
+# ──────────────── Stage 1: Build wheels ────────────────
+FROM python:3.10-slim AS builder
+
+WORKDIR /wheels
+
+# Install only build-time deps, with no extra recommends
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      build-essential \
+      gcc \
+      libffi-dev \
+      libssl-dev \
+      curl \
+      unzip \
+      gnupg \
+ && rm -rf /var/lib/apt/lists/*
+
+# Copy and build wheels
+COPY requirements.txt .
+RUN pip install --upgrade pip \
+ && pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
+
+
+# ──────────────── Stage 2: Runtime ────────────────
 FROM python:3.10-slim
 
-# Set environment variables to prevent Python from writing .pyc files and to ensure stdout/stderr are unbuffered
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# Prevent python from writing pyc’s & buffering stdout/stderr
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DISPLAY=:99
 
-# Install system dependencies for Selenium, Chromium, and headless browsing
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    curl \
-    unzip \
-    wget \
-    gnupg \
-    fonts-liberation \
-    libnss3 \
-    libxss1 \
-    libasound2 \
-    libatk-bridge2.0-0 \
-    libgtk-3-0 \
-    libx11-xcb1 \
-    xvfb \
-    chromium \
-    chromium-driver \
-    ca-certificates \
-    && ln -s /usr/bin/chromedriver /usr/local/bin/chromedriver \
-    && rm -rf /var/lib/apt/lists/*
-
-
-# Set the display environment variable for the headless browser
-ENV DISPLAY=:99
-
-# Create and set the working directory in the container
 WORKDIR /app
 
-# Copy the requirements.txt file and install Python dependencies
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install --root-user-action=ignore -r requirements.txt
+# Install only runtime deps (no build tools)
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      chromium \
+      chromium-driver \
+      ca-certificates \
+      fonts-liberation \
+      libnss3 \
+      libxss1 \
+      libasound2 \
+      libatk-bridge2.0-0 \
+      libgtk-3-0 \
+      libx11-xcb1 \
+      xvfb \
+ && rm -rf /var/lib/apt/lists/*
 
+# Copy pre-built wheels and install
+COPY --from=builder /wheels /wheels
+RUN pip install --no-cache-dir --no-index \
+      --find-links=/wheels \
+      -r requirements.txt \
+ && rm -rf /wheels
 
-# Copy the rest of the project files into the container
+# Copy app sources
 COPY . .
 
-# Expose port 8000 (or whichever port your Django app uses)
+# Expose your Django port
 EXPOSE 8000
 
-# Use Gunicorn to run the Django app
-# Replace 'djangoapp.wsgi:application' with the appropriate WSGI path for your project
+# Run with Gunicorn
 CMD ["gunicorn", "djangolang.wsgi:application", "--bind", "0.0.0.0:8000"]
