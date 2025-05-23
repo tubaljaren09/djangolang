@@ -2,7 +2,16 @@
 
 from django.shortcuts import render
 from .utils import scrape_page_with_selenium
+from django.http import HttpResponse
+import socket
 import re
+
+def check_selenium_dns(request):
+    try:
+        ip = socket.gethostbyname('selenium')
+        return HttpResponse(f"selenium resolves to {ip}")
+    except Exception as e:
+        return HttpResponse(f"DNS failed: {str(e)}")
 
 def parse_price(price_str):
     """Clean and convert price string to float."""
