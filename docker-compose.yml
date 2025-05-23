@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    container_name: django_app
+    depends_on:
+      - selenium
+    environment:
+      # Point your Selenium client at the Selenium container
+      SELENIUM_URL: http://selenium:4444/wd/hub
+    ports:
+      - "8000:8000"
+    # (optional) mount your source for live code reload
+    volumes:
+      - .:/app
+
+  selenium:
+    image: selenium/standalone-chrome:latest
+    container_name: selenium
+    # increase shared memory for Chrome
+    shm_size: 2g
+    ports:
+      - "4444:4444"
