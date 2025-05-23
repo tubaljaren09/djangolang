@@ -27,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['djangolang.up.railway.app']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://djangolang.up.railway.app',
+]
+
 
 # Application definition
 
