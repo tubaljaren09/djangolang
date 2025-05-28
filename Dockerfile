@@ -15,4 +15,5 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["gunicorn", "djangolang.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Increased Gunicorn timeout to 120 seconds
+CMD ["gunicorn", "djangolang.wsgi:application", "--bind", "0.0.0.0:8000", "--timeout", "120"]
