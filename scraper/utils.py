@@ -21,8 +21,11 @@ def scrape_page_with_selenium(url):
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--incognito')
 
-    # Use remote Selenium server instead of local chromedriver
-    selenium_url = os.getenv('SELENIUM_URL', 'http://selenium:4444/wd/hub')
+    # Use remote Selenium server; default to your Railway public URL
+    selenium_url = os.getenv(
+        'SELENIUM_URL',
+        'https://standalone-chrome.up.railway.app/wd/hub'
+    )
     driver = webdriver.Remote(command_executor=selenium_url, options=options)
     wait = WebDriverWait(driver, 10)
     
